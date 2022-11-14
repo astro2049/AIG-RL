@@ -1,6 +1,23 @@
 import numpy as np
 
-from EnvironmentModel import EnvironmentModel
+
+class EnvironmentModel:
+    def __init__(self, n_states, n_actions, seed=None):
+        self.n_states = n_states
+        self.n_actions = n_actions
+        self.randomstate = np.random.RandomState(seed)
+
+    def p(self, next_state, state, action):
+        raise NotImplementedError()
+
+    def r(self, next_state, state, action):
+        raise NotImplementedError()
+
+    def draw(self, state, action):
+        p = [self.p(ns, state, action) for ns in range(self.n_states)]
+        next_state = self.randomstate.choice(self.n_states, p=p)
+        reward = self.r(next_state, state, action)
+        return next_state, reward
 
 
 class Environment(EnvironmentModel):
@@ -15,6 +32,7 @@ class Environment(EnvironmentModel):
 
     def reset(self):
         self.n_steps = 0
+        print(self.dist)
         self.state = self.randomstate.choice(self.n_states, p=self.dist)
         return self.state
 
@@ -27,14 +45,17 @@ class Environment(EnvironmentModel):
         return self.state, reward, done
 
     def render(self):
-        actions = ["8", "2", "4", "6"]  # Numpad directions
-        env = self
-        self.state = env.reset()
-        env.render()
         done = False
         while not done:
             c = input("\nMove:")
             if c not in actions:
                 raise Exception("Invalid action")
-            state, r, done = env.step(actions.index(c))
-            env.render()
+            state, r, done = self.step(actions.index(c))
+            self.render()
+
+
+if __name__ == '__main__':
+    actions = ["w", "a", "s", "d"]  # Numpad directions
+    env = Environment(12, 4, 20, None)
+    env.state = env.reset()
+    env.render()
