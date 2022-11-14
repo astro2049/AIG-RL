@@ -20,8 +20,21 @@ class Environment(EnvironmentModel):
 
     def step(self, action):
         if action < 0 or action >= self.n_actions:
-            raise Exception("Invalid action.")
+            raise Exception("Invalid action")
         self.n_steps += 1
         done = (self.n_steps >= self.max_steps)
         self.state, reward = self.draw(self.state, action)
         return self.state, reward, done
+
+    def render(self):
+        actions = ["8", "2", "4", "6"]  # Numpad directions
+        env = self
+        self.state = env.reset()
+        env.render()
+        done = False
+        while not done:
+            c = input("\nMove:")
+            if c not in actions:
+                raise Exception("Invalid action")
+            state, r, done = env.step(actions.index(c))
+            env.render()
