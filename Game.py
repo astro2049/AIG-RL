@@ -57,8 +57,10 @@ class Environment(EnvironmentModel):
 
     def reset(self):
         self.n_steps = 0
-        print(self.dist)
+        # print(self.dist)
         self.state = self.randomstate.choice(self.n_states, p=self.dist)
+        print("- Maze -")
+        self.printGrid()
         return self.state
 
     def step(self, action):
@@ -69,18 +71,27 @@ class Environment(EnvironmentModel):
         self.state, reward = self.draw(self.state, action)
         return self.state, reward, done
 
-    def render(self):
-        done = False
-        while not done:
-            c = input("Move:\n")
+    def printGrid(self):
+        for i in range(3):
+            for j in range(4):
+                if i * 4 + j == self.state:
+                    print(" 1 ", end="")
+                else:
+                    print(" 0 ", end="")
+            print()
+
+    def render(self, done):
+        if not done:
+            c = input("step " + str(self.n_steps) + ", Move:\n")
             if c not in actions:
                 raise Exception("invalid action")
             state, r, done = self.step(actions.index(c))
-            self.render()
+            self.printGrid()
+            self.render(done)
 
 
 if __name__ == '__main__':
     actions = ["w", "a", "s", "d"]  # Numpad directions
-    env = Environment(actions, 12, 4, 20, None)
+    env = Environment(actions, 12, 4, 10, None)
     env.state = env.reset()
-    env.render()
+    env.render(False)
