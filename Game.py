@@ -21,14 +21,39 @@ class EnvironmentModel:
 
 
 class Environment(EnvironmentModel):
-    def __init__(self, n_states, n_actions, max_steps, dist, seed=None):
+    def __init__(self, actions, n_states, n_actions, max_steps, dist, seed=None):
         EnvironmentModel.__init__(self, n_states, n_actions, seed)
+        self.actions = actions
         self.n_steps = None
         self.state = None
         self.max_steps = max_steps
         self.dist = dist
         if self.dist is None:
             self.dist = np.full(n_states, 1 / n_states)
+
+    def p(self, next_state, state, action):
+        state = state
+        if action == 0:
+            state -= 4
+            if state < 0:
+                state += 4
+        elif action == 1:
+            if state % 4 != 0:
+                state -= 1
+        elif action == 2:
+            state += 4
+            if state > 11:
+                state -= 4
+        elif action == 3:
+            if state % 4 != 3:
+                state += 1
+        if next_state == state:
+            return 1
+        else:
+            return 0
+
+    def r(self, next_state, state, action):
+        pass
 
     def reset(self):
         self.n_steps = 0
@@ -38,7 +63,7 @@ class Environment(EnvironmentModel):
 
     def step(self, action):
         if action < 0 or action >= self.n_actions:
-            raise Exception("Invalid action")
+            raise Exception("invalid action")
         self.n_steps += 1
         done = (self.n_steps >= self.max_steps)
         self.state, reward = self.draw(self.state, action)
@@ -47,15 +72,15 @@ class Environment(EnvironmentModel):
     def render(self):
         done = False
         while not done:
-            c = input("\nMove:")
+            c = input("Move:\n")
             if c not in actions:
-                raise Exception("Invalid action")
+                raise Exception("invalid action")
             state, r, done = self.step(actions.index(c))
             self.render()
 
 
 if __name__ == '__main__':
     actions = ["w", "a", "s", "d"]  # Numpad directions
-    env = Environment(12, 4, 20, None)
+    env = Environment(actions, 12, 4, 20, None)
     env.state = env.reset()
     env.render()
