@@ -29,7 +29,9 @@ class Environment(EnvironmentModel):
         self.max_steps = max_steps
         self.dist = dist
         if self.dist is None:
-            self.dist = np.full(n_states, 1 / n_states)
+            self.dist = np.full(n_states, 1 / (n_states - 1))
+        self.win_state = 2
+        self.dist[2] = 0
 
     def p(self, next_state, state, action):
         state = state
@@ -76,6 +78,8 @@ class Environment(EnvironmentModel):
             for j in range(4):
                 if i * 4 + j == self.state:
                     print(" 1 ", end="")
+                elif i * 4 + j == self.win_state:
+                    print(" T ", end="")
                 else:
                     print(" 0 ", end="")
             print()
@@ -87,6 +91,9 @@ class Environment(EnvironmentModel):
                 raise Exception("invalid action")
             state, r, done = self.step(actions.index(c))
             self.printGrid()
+            if state == self.win_state:
+                print("You Win!")
+                done = True
             self.render(done)
 
 
